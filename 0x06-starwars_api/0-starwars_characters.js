@@ -3,34 +3,43 @@
 const request = require('request');
 const filmId = process.argv[2];
 
-request(`https://swapi-api.alx-tools.com/api/films/${filmId}`, (error, response, body) => {
-  if (error) {
-    console.error('Error:', error);
-    return;
+const getCharacters = new Promise((resolve, reject) => {
+  request.get(
+        `https://swapi-api.alx-tools.com/api/films/${filmId}/`,
+        (error, response, body) => {
+          if (!error) {
+            try {
+              resolve(JSON.parse(body).characters);
+            } catch (error) {
+              reject(error);
+            }
+          }
+          reject(error);
+        }
+  );
+});
+
+getCharacters.then((characters) => {
+  const charchtersPromises = [];
+
+  for (const character of characters) {
+    charchtersPromises.push(
+      new Promise((resolve, reject) => {
+        request.get(character, (error, response, body) => {
+          if (!error) {
+            try {
+              resolve(JSON.parse(body).name);
+            } catch (error) {
+              reject(error);
+            }
+          }
+          reject(error);
+        });
+      })
+    );
   }
 
-  if (response.statusCode !== 200) {
-    console.error('Status Code:', response.statusCode);
-    return;
-  }
-
-  const film = JSON.parse(body);
-  const characters = film.characters;
-
-  characters.forEach((characterUrl) => {
-    request(characterUrl, (error, response, body) => {
-      if (error) {
-        console.error('Error:', error);
-        return;
-      }
-
-      if (response.statusCode !== 200) {
-        console.error('Status Code:', response.statusCode);
-        return;
-      }
-
-      const character = JSON.parse(body);
-      console.log(character.name);
-    });
+  Promise.all(charchtersPromises).then((names) => {
+    names.forEach((name) => console.log(name));
   });
 });
