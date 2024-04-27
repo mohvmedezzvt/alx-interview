@@ -1,6 +1,5 @@
 #!/usr/bin/python3
-"""
-This module contains a function to rotate a 2D matrix in-place.
+""" This module contains a function to rotate a 2D matrix in-place.
 """
 
 
