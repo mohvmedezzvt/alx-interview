@@ -13,7 +13,6 @@ def rotate_2d_matrix(matrix: list[list[int]]) -> None:
 
     Returns:
         None: The function modifies the matrix in-place.
-
     """
     left, right = 0, len(matrix) - 1
 
